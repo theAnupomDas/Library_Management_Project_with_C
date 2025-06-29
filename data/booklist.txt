@@ -1,0 +1,4 @@
+book1,author1,gen1,100,80
+book2,author2,gen2,100,70
+book3,author3,gen2,100,89
+book4,author4,gen4,120,120
