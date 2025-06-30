@@ -91,7 +91,8 @@ UserNode *deleteUser(UserNode *head, int usercode)
                 previous->next = current->next;
                 free(current);
             }
-            printf("User deleted\n");
+            printf("Account deleted successfully!\n");
+            saveToFile_userdata(head, "../data/userdata.txt");
             return head;
         }
         previous = current;

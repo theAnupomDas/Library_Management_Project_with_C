@@ -9,6 +9,15 @@
 #include "../include/dashboard.h"
 #include "../include/user.h"
 
+void clearScreen()
+{
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
+
 int loginUser(UserNode *head)
 {
     while (true)
@@ -54,7 +63,7 @@ UserNode *registerUser(UserNode *head)
         printf("Memory allocation failed!\n");
         return head;
     }
-
+    printf("Registering a new user...\n");
     printf("Enter Username: ");
     scanf("%s", newUser->username);
     UserNode *temp = head;
@@ -85,12 +94,70 @@ UserNode *registerUser(UserNode *head)
     tail->next = newUser;
     newUser->next = NULL;
 
-    // saveToFile_userdata(head, FILE_USERDATA);
+    saveToFile_userdata(head, "../data/userdata.txt");
     printf("Registration successful! Your usercode is %d\n", newUser->usercode);
+    free(newUser);
     return head;
+}
+void userDashboard(UserNode *userlist_head, book * booklist_head)
+{
+    printf("Please enter your credidentials for Log in\n");
+    int current_user = loginUser(userlist_head);
+    label1:
+    clearScreen();
+    printf("Welcome to the User Dashboard!\n");
+    printf("Logged in successfully with usercode: %d\n", current_user);
+    printf("1. view all books\n"
+           "2. logout and return to home\n"
+           "3. logout and exit\n"
+           "4. delete my account\n"
+           "Please select an option: ");
+    int user_choice;
+    scanf("%d", &user_choice);
+    if (user_choice == 1)
+    {
+        if (booklist_head == NULL)
+        {
+            printf("No books available.\n");
+        }
+        else
+        {
+            book_traversal(booklist_head);
+        }
+        printf("\nPress any key to return to dashboard...\n");
+        _getch();
+        goto label1;
+    }
+    else if (user_choice == 2)
+    {
+        printf("Logging out...\n");
+        printf("Press any key to return to home...\n");
+        _getch();
+        initiateProgram();
+    }
+    else if (user_choice == 3)
+    {
+        printf("Logging out and exiting...\n");
+        free(userlist_head);
+        free(booklist_head);
+        exit(0);
+    }
+    else if (user_choice == 4)
+    {
+        userlist_head = deleteUser(userlist_head, current_user);
+        printf("Press any key to return to home... ");
+        _getch();
+        initiateProgram();
+    }
+    else
+    {
+        printf("Invalid choice. Please try again.\n");
+        userDashboard(userlist_head, booklist_head);
+    }
 }
 void initiateProgram()
 {
+    clearScreen();
     printf("Welcome to the Library Management System!\n");
 
     printf("1. Login\n");
@@ -100,87 +167,39 @@ void initiateProgram()
     printf("Please select an option: ");
     int choice;
     scanf("%d", &choice);
-    UserNode *head = loadFromFile_userdata("../data/userdata.txt");
+    UserNode *userlist_head = loadFromFile_userdata("../data/userdata.txt");
+    book *booklist_head = loadFromFile_booklist("../data/booklist.txt");
+
     if (choice == 1)
     {
-        int current_user = loginUser(head);
-        printf("Logged in successfully with usercode: %d\n", current_user);
-        printf("1. view all books\n"
-               "2. logout and return to home\n"
-               "3. logout and exit\n"
-               "4. delete my account\n"
-               "Please select an option: ");
-        int user_choice;
-        scanf("%d", &user_choice);
-        if (user_choice == 1)
-        {
-
-            book *booklist = loadFromFile_booklist("../data/booklist.txt");
-            if (booklist == NULL)
-            {
-                printf("No books available.\n");
-            }
-            else
-            {
-                book_traversal(booklist);
-            }
-            printf("\nPress any key to return to home...\n");
-            _getch();
-            initiateProgram();
-        }
-        else if (user_choice == 2)
-        {
-            printf("Logging out...\n");
-            printf("Press any key to return to home...\n");
-            _getch();
-            initiateProgram();
-        }
-        else if (user_choice == 3)
-        {
-            printf("Logging out and exiting...\n");
-            exit(0);
-        }
-        else if (user_choice == 4)
-        {
-            head = deleteUser(head, current_user);
-            saveToFile_userdata(head, "../data/userdata.txt");
-            printf("Account deleted successfully!\n");
-            printf("Press any key to return to home...\n");
-            _getch();
-            initiateProgram();
-        }
-        else
-        {
-            printf("Invalid choice. Please try again.\n");
-            initiateProgram();
-        }
+        clearScreen();
+        userDashboard(userlist_head, booklist_head);
     }
     else if (choice == 2)
     {
-        printf("Registering a new user...\n");
-
-        head = registerUser(head);
-        saveToFile_userdata(head, "../data/userdata.txt");
-        printf("User registered successfully!\n");
+        clearScreen();
+        userlist_head = registerUser(userlist_head);
         printf("Press any key to return to home...\n");
         _getch();
         initiateProgram();
     }
     else if (choice == 3)
     {
+        clearScreen();
         printf("About the Library Management System:\n");
-        printf("This is a Library Management System developed by Anupom Das and supervised by A S M Delowar Hossain, Associate Professor,\n"
+        printf("This is a Library Management System developed by Anupom Das and supervised by A S M Delowar Hossain, Associate Professor,"
                "Department of Computer Science and Engineering, Mawlana Bhashani Science and Technology University.\n"
                "This program allows users to register, login, and manage books in the library.\n"
                "This program is under development. Some Features may not work properly.\n");
         printf("\n\n Press any key to return to home...\n");
-        //getchar();
-        _getch();
+        _getch(); // Wait for user input before returning to home
         initiateProgram();
     }
     else if (choice == 4)
     {
-        printf("Exiting the program. Goodbye!\n");
+        printf("Exiting the program. Thank you for being with us!\n");
+        free(userlist_head);
+        free(booklist_head);
         exit(0);
     }
     else
@@ -188,4 +207,5 @@ void initiateProgram()
         printf("Invalid choice. Please try again.\n");
         initiateProgram();
     }
+
 }
