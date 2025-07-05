@@ -18,87 +18,7 @@ void clearScreen()
 #endif
 }
 
-int loginUser(UserNode *head)
-{
-    while (true)
-    {
-        printf("Enter Username: ");
-        char entered_username[30];
-        scanf("%s", entered_username);
-        // entered_username[strlen(entered_username)] = '\0';
-        printf("Username entered: %s\n", entered_username);
-        UserNode *temp = head;
-        while (temp != NULL)
-        {
-            if (strcmp(temp->username, entered_username) == 0)
-            {
-                printf("User found!\n");
-                while (true)
-                {
-                    printf("Enter Password: ");
-                    char entered_password[30];
-                    scanf("%s", entered_password);
-                    // entered_password[strlen(entered_password)] = '\0';
-                    if (strcmp(temp->password, entered_password) == 0)
-                    {
-                        printf("Login successful! Welcome %s\n", temp->username);
-                        return temp->usercode;
-                    }
-                    else
-                    {
-                        printf("Incorrect password. Please try again.\n");
-                    }
-                }
-            }
-            temp = temp->next;
-        }
-        printf("User not found. Please check the username.\n");
-    }
-}
-UserNode *registerUser(UserNode *head)
-{
-    UserNode *newUser = (UserNode *)malloc(sizeof(UserNode));
-    if (newUser == NULL)
-    {
-        printf("Memory allocation failed!\n");
-        return head;
-    }
-    printf("Registering a new user...\n");
-    printf("Enter Username: ");
-    scanf("%s", newUser->username);
-    UserNode *temp = head;
-    int currentUsercode = 1000;
-    UserNode *tail;
-    while (temp != NULL)
-    {
-        if (strcmp(temp->username, newUser->username) == 0)
-        {
-            printf("Username already exists. Please choose a different username.\n");
-            free(newUser);
-            return head;
-        }
-        currentUsercode = temp ? temp->usercode : 1000;
-        tail = temp;
-        temp = temp->next;
-    }
-    printf("Enter Password: ");
-    scanf("%s", newUser->password);
 
-    // Generate a unique usercode
-    newUser->usercode = ++currentUsercode; // Random usercode for simplicity
-    time_t now = time(NULL);
-    strftime(newUser->timestamp, sizeof(newUser->timestamp), "%Y-%m-%d %H:%M:%S", localtime(&now));
-    // time_t currentTime;
-    // time(&currentTime);
-    // newUser->timestamp = ctime(&currentTime);
-    tail->next = newUser;
-    newUser->next = NULL;
-
-    saveToFile_userdata(head, "../data/userdata.txt");
-    printf("Registration successful! Your usercode is %d\n", newUser->usercode);
-    free(newUser);
-    return head;
-}
 void userDashboard(UserNode *userlist_head, book * booklist_head)
 {
     printf("Please enter your credidentials for Log in\n");
@@ -111,6 +31,7 @@ void userDashboard(UserNode *userlist_head, book * booklist_head)
            "2. logout and return to home\n"
            "3. logout and exit\n"
            "4. delete my account\n"
+           "5. borrow a book\n"
            "Please select an option: ");
     int user_choice;
     scanf("%d", &user_choice);
@@ -122,7 +43,7 @@ void userDashboard(UserNode *userlist_head, book * booklist_head)
         }
         else
         {
-            book_traversal(booklist_head);
+            viewBooks(booklist_head);
         }
         printf("\nPress any key to return to dashboard...\n");
         _getch();
@@ -148,6 +69,32 @@ void userDashboard(UserNode *userlist_head, book * booklist_head)
         printf("Press any key to return to home... ");
         _getch();
         initiateProgram();
+    }
+    else if (user_choice == 5)
+    {
+        if (booklist_head == NULL)
+        {
+            printf("No books available to borrow.\n");
+        }
+        else
+        {
+            int bookcode;
+            printf("Enter the book code you want to borrow: ");
+            scanf("%d", &bookcode);
+            booklist_head = borrowBook(booklist_head, bookcode, current_user);
+            borrowed_book *borrowed_books = readBorrowedBooks(current_user);
+            if (borrowed_books != NULL)
+            {
+                saveBorrowedBooks(borrowed_books, current_user);
+                free(borrowed_books);
+            }
+            saveToFile_booklist(booklist_head);
+            printf("Book borrowed successfully!\n");
+        }
+
+        printf("\nPress any key to return to dashboard...\n");
+        _getch();
+        goto label1;
     }
     else
     {
