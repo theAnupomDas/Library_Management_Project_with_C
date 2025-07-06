@@ -4,6 +4,7 @@
 #include <string.h>
 #include <time.h>
 #include "../include/book.h"
+#include "../include/filepaths.h"
 
 book *loadFromFile_booklist(const char *FILE_BOOK)
 {
@@ -45,7 +46,7 @@ book *loadFromFile_booklist(const char *FILE_BOOK)
 }
 book *saveToFile_booklist(book *head)
 {
-    FILE *file = fopen("../data/booklist.txt", "w");
+    FILE *file = fopen(filepath_booklist, "w");
     if (!file)
     {
         printf("File opening error!\n");
@@ -179,7 +180,7 @@ book *borrowBook(book *booklist_head, int bookcode, int usercode)
                 temp->avaiablecount--;
                 // Here you would also need to log the borrowing in a separate structure or file
                 char filepath[60];
-                sprintf(filepath, "../data/borrowed_book/user_%d_borrowed_book.txt", usercode);
+                sprintf(filepath, filepath_borrowed_books"/user_%d_borrowed_book.txt", usercode);
                 FILE *file = fopen(filepath, "a");
                 if (!file)
                 {
@@ -210,7 +211,7 @@ book *borrowBook(book *booklist_head, int bookcode, int usercode)
 borrowed_book *readBorrowedBooks(int usercode)
 {
     char filepath[60];
-    sprintf(filepath, "../data/borrowed_book/user_%d_borrowed_book.txt", usercode);
+    sprintf(filepath, filepath_borrowed_books"/user_%d_borrowed_book.txt", usercode);
     FILE *file = fopen(filepath, "r");
     if (!file)
     {
@@ -250,7 +251,7 @@ borrowed_book *readBorrowedBooks(int usercode)
 borrowed_book *saveBorrowedBooks(borrowed_book *head, int usercode)
 {
     char filepath[60];
-    sprintf(filepath, "../data/borrowed_book/user_%d_borrowed_book.txt", usercode);
+    sprintf(filepath, filepath_borrowed_books"/user_%d_borrowed_book.txt", usercode);
     FILE *file = fopen(filepath, "w");
     if (!file)
     {

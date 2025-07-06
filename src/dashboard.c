@@ -8,6 +8,7 @@
 #include "../include/book.h"
 #include "../include/dashboard.h"
 #include "../include/user.h"
+#include "../include/filepaths.h"
 
 void clearScreen()
 {
@@ -89,7 +90,6 @@ void userDashboard(UserNode *userlist_head, book * booklist_head)
                 free(borrowed_books);
             }
             saveToFile_booklist(booklist_head);
-            printf("Book borrowed successfully!\n");
         }
 
         printf("\nPress any key to return to dashboard...\n");
@@ -114,8 +114,8 @@ void initiateProgram()
     printf("Please select an option: ");
     int choice;
     scanf("%d", &choice);
-    UserNode *userlist_head = loadFromFile_userdata("../data/userdata.txt");
-    book *booklist_head = loadFromFile_booklist("../data/booklist.txt");
+    UserNode *userlist_head = loadFromFile_userdata(filepath_userdata);
+    book *booklist_head = loadFromFile_booklist(filepath_booklist);
 
     if (choice == 1)
     {

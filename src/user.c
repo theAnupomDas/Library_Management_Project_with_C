@@ -4,6 +4,7 @@
 #include <string.h>
 #include <time.h>
 #include "../include/user.h"
+#include "../include/filepaths.h"
 
 UserNode *loadFromFile_userdata(const char *filepath)
 {
@@ -100,7 +101,7 @@ UserNode *deleteUser(UserNode *head, int usercode)
                 free(current);
             }
             printf("Account deleted successfully!\n");
-            saveToFile_userdata(head, "../data/userdata.txt");
+            saveToFile_userdata(head, filepath_userdata);
             return head;
         }
         previous = current;
@@ -149,7 +150,7 @@ UserNode *registerUser(UserNode *head)
     tail->next = newUser;
     newUser->next = NULL;
     char filepath[60];
-    sprintf(filepath, "../data/borrowed_book/user_%d_borrowed_book.txt", newUser->usercode);
+    sprintf(filepath, filepath_borrowed_books"/user_%d_borrowed_book.txt", newUser->usercode);
     FILE *file = fopen(filepath, "w");
     if (!file)
     {
@@ -158,7 +159,7 @@ UserNode *registerUser(UserNode *head)
         return head;
     }
     fclose(file);
-    saveToFile_userdata(head, "../data/userdata.txt");
+    saveToFile_userdata(head, filepath_userdata);
     printf("Registration successful! Your usercode is %d\n", newUser->usercode);
     free(newUser);
     return head;
