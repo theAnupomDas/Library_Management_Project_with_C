@@ -27,5 +27,6 @@ book *addBook(book *head, const char *FILE_BOOK);
 void viewBooks(book *booklist_head);
 book *deleteBook(book *head, int bookcode);
 book *borrowBook(book *booklist_head, int bookcode, int usercode);
-borrowed_book *readBorrowedBooks(int usercode); 
-borrowed_book *saveBorrowedBooks(borrowed_book *head, int usercode);
+book *returnBook(book *booklist_head, int bookcode, int usercode);
+borrowed_book *loadFromFile_BorrowedBooks(int usercode); 
+borrowed_book *saveToFile_BorrowedBooks(borrowed_book *head, int usercode);

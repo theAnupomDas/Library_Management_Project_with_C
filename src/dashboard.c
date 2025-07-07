@@ -33,6 +33,7 @@ void userDashboard(UserNode *userlist_head, book * booklist_head)
            "3. logout and exit\n"
            "4. delete my account\n"
            "5. borrow a book\n"
+           "6. return a book\n"
            "Please select an option: ");
     int user_choice;
     scanf("%d", &user_choice);
@@ -83,15 +84,25 @@ void userDashboard(UserNode *userlist_head, book * booklist_head)
             printf("Enter the book code you want to borrow: ");
             scanf("%d", &bookcode);
             booklist_head = borrowBook(booklist_head, bookcode, current_user);
-            borrowed_book *borrowed_books = readBorrowedBooks(current_user);
+            borrowed_book *borrowed_books = loadFromFile_BorrowedBooks(current_user);
             if (borrowed_books != NULL)
             {
-                saveBorrowedBooks(borrowed_books, current_user);
+                saveToFile_BorrowedBooks(borrowed_books, current_user);
                 free(borrowed_books);
             }
             saveToFile_booklist(booklist_head);
         }
 
+        printf("\nPress any key to return to dashboard...\n");
+        _getch();
+        goto label1;
+    }
+    else if (user_choice == 6)
+    {
+        int bookcode;
+        printf("Enter the book code you want to return: ");
+        scanf("%d", &bookcode);
+        booklist_head = returnBook(booklist_head, bookcode, current_user);
         printf("\nPress any key to return to dashboard...\n");
         _getch();
         goto label1;

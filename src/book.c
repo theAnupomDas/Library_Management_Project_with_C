@@ -178,7 +178,6 @@ book *borrowBook(book *booklist_head, int bookcode, int usercode)
             if (temp->avaiablecount > 0)
             {
                 temp->avaiablecount--;
-                // Here you would also need to log the borrowing in a separate structure or file
                 char filepath[60];
                 sprintf(filepath, filepath_borrowed_books"/user_%d_borrowed_book.txt", usercode);
                 FILE *file = fopen(filepath, "a");
@@ -208,7 +207,44 @@ book *borrowBook(book *booklist_head, int bookcode, int usercode)
     printf("Book not found.\n");
     return booklist_head;
 }
-borrowed_book *readBorrowedBooks(int usercode)
+book* returnBook(book *booklist_head, int bookcode, int usercode)
+{
+    borrowed_book *borrowed_books = loadFromFile_BorrowedBooks(usercode);
+    if (borrowed_books == NULL)
+    {
+        printf("No borrowed books found for user %d.\n", usercode);
+        return booklist_head;
+    }
+    borrowed_book *temp = borrowed_books;
+    while(temp != NULL)
+    {
+        if (temp->bookcode == bookcode && !temp->is_returned)
+        {
+            temp->is_returned = 1; 
+            // Update the book's available count
+            book *book_temp = booklist_head;
+            while (book_temp != NULL)
+            {
+                if (book_temp->bookcode == bookcode)
+                {
+                    book_temp->avaiablecount++;
+                    break;
+                }
+                book_temp = book_temp->next;
+            }
+            
+            printf("Book returned successfully!\n");
+            saveToFile_BorrowedBooks(borrowed_books, usercode);
+            free(borrowed_books);
+            return booklist_head;
+        }
+        temp = temp->next;
+    }
+    printf("Book not found in borrowed books or already returned.\n");
+    free(borrowed_books);
+    return booklist_head;
+}
+borrowed_book *loadFromFile_BorrowedBooks(int usercode)
 {
     char filepath[60];
     sprintf(filepath, filepath_borrowed_books"/user_%d_borrowed_book.txt", usercode);
@@ -248,7 +284,7 @@ borrowed_book *readBorrowedBooks(int usercode)
     fclose(file);
     return head;
 }
-borrowed_book *saveBorrowedBooks(borrowed_book *head, int usercode)
+borrowed_book *saveToFile_BorrowedBooks(borrowed_book *head, int usercode)
 {
     char filepath[60];
     sprintf(filepath, filepath_borrowed_books"/user_%d_borrowed_book.txt", usercode);
