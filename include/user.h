@@ -1,4 +1,5 @@
 #pragma once
+#include "book.h"
 typedef struct UserNode
 {
     char username[20];
@@ -13,5 +14,6 @@ void user_traversal(UserNode *head);
 void saveToFile_userdata(UserNode *head, const char *filepath);
 UserNode *deleteUser(UserNode *head, int usercode);
 UserNode *registerUser(UserNode *head);
-UserNode* loginUser(UserNode *head);
+UserNode* loginUser(UserNode *userlist_head, book *booklist_head);
 void showUserDetails(UserNode *user);
+void adminLogin(UserNode *userlist_head, book *booklist_head);

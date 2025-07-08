@@ -7,7 +7,6 @@
 
 #include "../include/book.h"
 #include "../include/dashboard.h"
-#include "../include/user.h"
 #include "../include/filepaths.h"
 
 void clearScreen()
@@ -19,10 +18,133 @@ void clearScreen()
 #endif
 }
 
+void adminDashboard(UserNode *userlist_head, book *booklist_head)
+{
+    label_admin_dashboard:
+    printf("Welcome to the Admin Dashboard!\n");
+    printf("1. view all books\n"
+           "2. add a book\n"
+           "3. delete a book\n"
+           "4. view all users\n"
+           "5. logout and return to home\n"
+           "6. logout and exit\n"
+           "7. update password\n");
+
+    printf("Please select an option: ");
+    int admin_choice;
+    scanf("%d", &admin_choice);
+    // view all books
+    if (admin_choice == 1)
+    {
+        if (booklist_head == NULL)
+        {
+            printf("No books available.\n");
+        }
+        else
+        {
+            viewBooks(booklist_head);
+        }
+        printf("\nPress any key to return to admin dashboard...\n");
+        _getch();
+        adminLogin(userlist_head, booklist_head);
+    }
+    // add a book
+    else if (admin_choice == 2)
+    {
+        booklist_head = addBook(booklist_head, filepath_booklist);
+        printf("\nPress any key to return to admin dashboard...\n");
+        _getch();
+        adminLogin(userlist_head, booklist_head);
+    }
+    // delete a book
+    else if (admin_choice == 3)
+    {
+        if (booklist_head == NULL)
+        {
+            printf("No books available to delete.\n");
+        }
+        else
+        {
+            viewBooks(booklist_head);
+            int bookcode;
+            printf("Enter the book code you want to delete:\n"
+                   "or Press 0 to return to admin dashboard: \n"
+                   "Select an option: ");
+            scanf("%d", &bookcode);
+            if (bookcode == 0)
+            {
+                adminLogin(userlist_head, booklist_head);
+            }
+            booklist_head = deleteBook(booklist_head, bookcode);
+            saveToFile_booklist(booklist_head);
+        }
+        printf("\nPress any key to return to admin dashboard...\n");
+        _getch();
+        adminLogin(userlist_head, booklist_head);
+    }
+    // view all users
+    else if (admin_choice == 4)
+    {
+        user_traversal(userlist_head);
+        printf("\nPress any key to return to admin dashboard...\n");
+        _getch();
+        adminLogin(userlist_head, booklist_head);
+    }
+    // logout and return to home
+    else if (admin_choice == 5)
+    {
+        printf("Logging out...\n");
+        printf("Press any key to return to home...\n");
+        _getch();
+        initiateProgram();
+    }
+    // logout and exit
+    else if (admin_choice == 6)
+    {
+        printf("Logging out and exiting...\n");
+        free(userlist_head);
+        free(booklist_head);
+        exit(0);
+    }
+    else if (admin_choice == 7)
+    {
+        clearScreen();
+        char new_password[20];
+        printf("Enter new admin password: ");
+        scanf("%s", new_password);
+        char new_password_confirm[20];
+        printf("Confirm new admin password: ");
+        scanf("%s", new_password_confirm);
+        if (strcmp(new_password, new_password_confirm) != 0)
+        {
+            printf("Passwords do not match. Please try again.\n");
+            _getch(); // Wait for user input before returning to home
+            goto label_admin_dashboard;
+        }
+        FILE *admin_file = fopen(filepath_admin, "w");
+        if (admin_file == NULL)
+        {
+            printf("Error opening admin file.\n");
+            exit(1);
+        }
+        fprintf(admin_file, "%s\n", new_password);
+        fclose(admin_file);
+        printf("Admin password updated successfully!\n");
+        printf("Press any key to return to admin dashboard...\n");
+        _getch();
+        adminLogin(userlist_head, booklist_head);
+    }
+    else
+    {
+        printf("Invalid choice. Please try again.\n");
+        adminLogin(userlist_head, booklist_head);
+    }
+}
+
 void userDashboard(UserNode *userlist_head, book *booklist_head)
 {
     printf("Please enter your credidentials for Log in\n");
-    UserNode *current_user = loginUser(userlist_head);
+    UserNode *current_user = loginUser(userlist_head, booklist_head);
 label_user_dashboard:
     clearScreen();
     printf("Welcome to the User Dashboard!\n");
@@ -224,4 +346,6 @@ void initiateProgram()
         printf("Invalid choice. Please try again.\n");
         initiateProgram();
     }
+    free(userlist_head);
+    free(booklist_head);
 }

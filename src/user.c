@@ -2,9 +2,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <conio.h>
 #include <time.h>
 #include "../include/user.h"
 #include "../include/filepaths.h"
+#include "../include/dashboard.h"
+#include "../include/book.h"
 
 UserNode *loadFromFile_userdata(const char *filepath)
 {
@@ -165,7 +168,7 @@ UserNode *registerUser(UserNode *head)
     return head;
 }
 
-UserNode* loginUser(UserNode *head)
+UserNode* loginUser(UserNode *userlist_head, book *booklist_head)
 {
     while (true)
     {
@@ -174,7 +177,11 @@ UserNode* loginUser(UserNode *head)
         scanf("%s", entered_username);
         // entered_username[strlen(entered_username)] = '\0';
         printf("Username entered: %s\n", entered_username);
-        UserNode *temp = head;
+        if (strcmp(entered_username, "admin") == 0)
+        {
+            adminLogin(userlist_head, booklist_head);
+        }
+        UserNode *temp = userlist_head;
         while (temp != NULL)
         {
             if (strcmp(temp->username, entered_username) == 0)
@@ -201,6 +208,32 @@ UserNode* loginUser(UserNode *head)
         }
         printf("User not found. Please check the username.\n");
     }
+}
+
+void adminLogin(UserNode *userlist_head, book *booklist_head)
+{
+    printf("Please enter your admin credidentials for Log in\n");
+    char admin_password[20];
+    printf("Enter Admin Password: ");
+    scanf("%s", admin_password);
+    FILE *admin_file = fopen(filepath_admin, "r");
+    if (admin_file == NULL)
+    {
+        printf("Admin file not found. Please contact the administrator.\n");
+        exit(1);
+    }
+    char stored_password[20];
+    fscanf(admin_file, "%19[^\n]", stored_password);
+    fclose(admin_file);
+    if(strcmp(admin_password, stored_password) != 0)
+    {
+        printf("Incorrect admin password. Please try again.\n");
+        _getch(); // Wait for user input before returning to home
+        initiateProgram();
+    }
+    printf("Admin login successful!\n");
+    adminDashboard(userlist_head, booklist_head);
+
 }
 
 void showUserDetails(UserNode *user)
