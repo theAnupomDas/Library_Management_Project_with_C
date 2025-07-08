@@ -13,4 +13,4 @@ void user_traversal(UserNode *head);
 void saveToFile_userdata(UserNode *head, const char *filepath);
 UserNode *deleteUser(UserNode *head, int usercode);
 UserNode *registerUser(UserNode *head);
-int loginUser(UserNode *head);
+UserNode* loginUser(UserNode *head);

@@ -165,7 +165,7 @@ UserNode *registerUser(UserNode *head)
     return head;
 }
 
-int loginUser(UserNode *head)
+UserNode* loginUser(UserNode *head)
 {
     while (true)
     {
@@ -189,7 +189,7 @@ int loginUser(UserNode *head)
                     if (strcmp(temp->password, entered_password) == 0)
                     {
                         printf("Login successful! Welcome %s\n", temp->username);
-                        return temp->usercode;
+                        return temp;;
                     }
                     else
                     {

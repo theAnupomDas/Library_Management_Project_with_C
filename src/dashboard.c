@@ -19,24 +19,27 @@ void clearScreen()
 #endif
 }
 
-
-void userDashboard(UserNode *userlist_head, book * booklist_head)
+void userDashboard(UserNode *userlist_head, book *booklist_head)
 {
     printf("Please enter your credidentials for Log in\n");
-    int current_user = loginUser(userlist_head);
-    label1:
+    UserNode *current_user = loginUser(userlist_head);
+label_user_dashboard:
     clearScreen();
     printf("Welcome to the User Dashboard!\n");
-    printf("Logged in successfully with usercode: %d\n", current_user);
+    printf("Logged in successfully. username: %s\n", current_user->username);
     printf("1. view all books\n"
-           "2. logout and return to home\n"
-           "3. logout and exit\n"
-           "4. delete my account\n"
-           "5. borrow a book\n"
-           "6. return a book\n"
+           "2. borrow a book\n"
+           "3. view my borrowed books\n"
+           "4. return a book\n"
+           "5. logout and return to home\n"
+           "6. logout and exit\n"
+           "7. about\n"
+           "8. delete my account\n"
+
            "Please select an option: ");
     int user_choice;
     scanf("%d", &user_choice);
+    // view all books
     if (user_choice == 1)
     {
         if (booklist_head == NULL)
@@ -47,32 +50,28 @@ void userDashboard(UserNode *userlist_head, book * booklist_head)
         {
             viewBooks(booklist_head);
         }
+        printf("\nPress 1 to borrow a book\n"
+               "Press 2 to return to dashboard\n");
+        int choice;
+        scanf("%d", &choice);
+        if (choice == 1)
+        {
+            goto label_borrow_book;
+        }
+        else if (choice == 2)
+        {
+            goto label_user_dashboard;
+        }
+        else
+        {
+            printf("Invalid choice..\n");
+        }
         printf("\nPress any key to return to dashboard...\n");
         _getch();
-        goto label1;
+        goto label_user_dashboard;
     }
+    // borrow a book
     else if (user_choice == 2)
-    {
-        printf("Logging out...\n");
-        printf("Press any key to return to home...\n");
-        _getch();
-        initiateProgram();
-    }
-    else if (user_choice == 3)
-    {
-        printf("Logging out and exiting...\n");
-        free(userlist_head);
-        free(booklist_head);
-        exit(0);
-    }
-    else if (user_choice == 4)
-    {
-        userlist_head = deleteUser(userlist_head, current_user);
-        printf("Press any key to return to home... ");
-        _getch();
-        initiateProgram();
-    }
-    else if (user_choice == 5)
     {
         if (booklist_head == NULL)
         {
@@ -80,14 +79,23 @@ void userDashboard(UserNode *userlist_head, book * booklist_head)
         }
         else
         {
+            printf("Available books:\n");
+            viewBooks(booklist_head);
+        label_borrow_book:
             int bookcode;
-            printf("Enter the book code you want to borrow: ");
+            printf("Enter the book code you want to borrow:\n"
+                   "or Press 0 to return to dashboard: \n"
+                   "Select an option: ");
             scanf("%d", &bookcode);
-            booklist_head = borrowBook(booklist_head, bookcode, current_user);
-            borrowed_book *borrowed_books = loadFromFile_BorrowedBooks(current_user);
+            if (bookcode == 0)
+            {
+                goto label_user_dashboard;
+            }
+            booklist_head = borrowBook(booklist_head, bookcode, current_user->usercode);
+            borrowed_book *borrowed_books = loadFromFile_BorrowedBooks(current_user->usercode);
             if (borrowed_books != NULL)
             {
-                saveToFile_BorrowedBooks(borrowed_books, current_user);
+                saveToFile_BorrowedBooks(borrowed_books, current_user->usercode);
                 free(borrowed_books);
             }
             saveToFile_booklist(booklist_head);
@@ -95,18 +103,65 @@ void userDashboard(UserNode *userlist_head, book * booklist_head)
 
         printf("\nPress any key to return to dashboard...\n");
         _getch();
-        goto label1;
+        goto label_user_dashboard;
+    }
+    else if (user_choice == 3)
+    {
+        printf("Under Development...\n");
+        printf("\nPress any key to return to dashboard...\n");
+        _getch();
+        goto label_user_dashboard;
+    }
+    else if (user_choice == 4)
+    {
+        int bookcode;
+        printf("Enter the book code you want to return:\n"
+               "or Press 0 to return to dashboard: \n"
+               "Select an option: ");
+        scanf("%d", &bookcode);
+        if (bookcode == 0)
+        {
+            goto label_user_dashboard;
+        }
+        booklist_head = returnBook(booklist_head, bookcode, current_user->usercode);
+        printf("\nPress any key to return to dashboard...\n");
+        _getch();
+        goto label_user_dashboard;
+    }
+
+    else if (user_choice == 5)
+    {
+        printf("Logging out...\n");
+        printf("Press any key to return to home...\n");
+        _getch();
+        initiateProgram();
     }
     else if (user_choice == 6)
     {
-        int bookcode;
-        printf("Enter the book code you want to return: ");
-        scanf("%d", &bookcode);
-        booklist_head = returnBook(booklist_head, bookcode, current_user);
-        printf("\nPress any key to return to dashboard...\n");
-        _getch();
-        goto label1;
+        printf("Logging out and exiting...\n");
+        free(userlist_head);
+        free(booklist_head);
+        exit(0);
     }
+    else if (user_choice == 7)
+    {
+        clearScreen();
+        printf("About the Current User:\n");
+        printf("Username: %s\n", current_user->username);
+        printf("Usercode: %d\n", current_user->usercode);
+        printf("Registered at: %s\n", current_user->timestamp);
+        printf("Press any key to return to home... ");
+        _getch();
+        goto label_user_dashboard;
+    }
+    else if (user_choice == 8)
+    {
+        userlist_head = deleteUser(userlist_head, current_user->usercode);
+        printf("Press any key to return to home... ");
+        _getch();
+        initiateProgram();
+    }
+
     else
     {
         printf("Invalid choice. Please try again.\n");
@@ -165,5 +220,4 @@ void initiateProgram()
         printf("Invalid choice. Please try again.\n");
         initiateProgram();
     }
-
 }
