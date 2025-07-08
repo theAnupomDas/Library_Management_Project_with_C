@@ -179,7 +179,7 @@ book *borrowBook(book *booklist_head, int bookcode, int usercode)
             {
                 temp->avaiablecount--;
                 char filepath[60];
-                sprintf(filepath, filepath_borrowed_books"/user_%d_borrowed_book.txt", usercode);
+                sprintf(filepath, filepath_borrowed_books "/user_%d_borrowed_book.txt", usercode);
                 FILE *file = fopen(filepath, "a");
                 if (!file)
                 {
@@ -207,7 +207,7 @@ book *borrowBook(book *booklist_head, int bookcode, int usercode)
     printf("Book not found.\n");
     return booklist_head;
 }
-book* returnBook(book *booklist_head, int bookcode, int usercode)
+book *returnBook(book *booklist_head, int bookcode, int usercode)
 {
     borrowed_book *borrowed_books = loadFromFile_BorrowedBooks(usercode);
     if (borrowed_books == NULL)
@@ -216,11 +216,11 @@ book* returnBook(book *booklist_head, int bookcode, int usercode)
         return booklist_head;
     }
     borrowed_book *temp = borrowed_books;
-    while(temp != NULL)
+    while (temp != NULL)
     {
         if (temp->bookcode == bookcode && !temp->is_returned)
         {
-            temp->is_returned = 1; 
+            temp->is_returned = 1;
             // Update the book's available count
             book *book_temp = booklist_head;
             while (book_temp != NULL)
@@ -232,7 +232,7 @@ book* returnBook(book *booklist_head, int bookcode, int usercode)
                 }
                 book_temp = book_temp->next;
             }
-            
+
             printf("Book returned successfully!\n");
             saveToFile_BorrowedBooks(borrowed_books, usercode);
             free(borrowed_books);
@@ -247,7 +247,7 @@ book* returnBook(book *booklist_head, int bookcode, int usercode)
 borrowed_book *loadFromFile_BorrowedBooks(int usercode)
 {
     char filepath[60];
-    sprintf(filepath, filepath_borrowed_books"/user_%d_borrowed_book.txt", usercode);
+    sprintf(filepath, filepath_borrowed_books "/user_%d_borrowed_book.txt", usercode);
     FILE *file = fopen(filepath, "r");
     if (!file)
     {
@@ -287,7 +287,7 @@ borrowed_book *loadFromFile_BorrowedBooks(int usercode)
 borrowed_book *saveToFile_BorrowedBooks(borrowed_book *head, int usercode)
 {
     char filepath[60];
-    sprintf(filepath, filepath_borrowed_books"/user_%d_borrowed_book.txt", usercode);
+    sprintf(filepath, filepath_borrowed_books "/user_%d_borrowed_book.txt", usercode);
     FILE *file = fopen(filepath, "w");
     if (!file)
     {
@@ -302,4 +302,72 @@ borrowed_book *saveToFile_BorrowedBooks(borrowed_book *head, int usercode)
     }
     fclose(file);
     return head;
+}
+void showBorrowedBooks(borrowed_book *borrowed_book_head, book *booklist_head, SelectBookStatus book_status)
+{
+    if (borrowed_book_head == NULL)
+    {
+        printf("No borrowed books found.\n");
+        return;
+    }
+    borrowed_book *temp = borrowed_book_head;
+    if (book_status == NOT_RETURNED)
+    {
+        printf("Borrowed Books:\n");
+        temp = borrowed_book_head;
+        while (temp != NULL)
+        {
+            if (temp->is_returned == 0)
+            {
+                printf("Bookcode: %d, Book: %s, Borrowed Time: %s\n",
+                       temp->bookcode, getBookName(booklist_head, temp->bookcode), temp->timestamp);
+            }
+
+            temp = temp->next;
+        }
+    }
+    else if (book_status == RETURNED)
+    {
+        printf("Returned Books:\n");
+        temp = borrowed_book_head;
+        while (temp != NULL)
+        {
+            if (temp->is_returned == 1)
+            {
+                printf("Bookcode: %d, Book: %s, Borrowed Time: %s, Returned: Yes, Returned time: \n",
+                       temp->bookcode, getBookName(booklist_head, temp->bookcode), temp->timestamp);
+            }
+
+            temp = temp->next;
+        }
+    }
+    else if (book_status == ALL)
+    {
+        printf("All Borrowed Books:\n");
+        temp = borrowed_book_head;
+        while (temp != NULL)
+        {
+            printf("Bookcode: %d, Book: %s, Borrowed Time: %s, Returned: %s, Returned time: \n",
+                   temp->bookcode, getBookName(booklist_head, temp->bookcode), temp->timestamp, temp->is_returned ? "Yes" : "No");
+            temp = temp->next;
+        }
+    }
+    else
+    {
+        printf("Invalid book status.\n");
+        return;
+    }
+}
+const char *getBookName(book *booklist_head, int bookcode)
+{
+    book *temp = booklist_head;
+    while (temp != NULL)
+    {
+        if (temp->bookcode == bookcode)
+        {
+            return temp->book;
+        }
+        temp = temp->next;
+    }
+    return "Book not found";
 }

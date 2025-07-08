@@ -19,6 +19,12 @@ typedef struct borrowed_book
     bool is_returned; 
     struct borrowed_book *next;
 } borrowed_book;
+typedef enum {
+    NOT_RETURNED = 0,
+    RETURNED = 1,
+    ALL = 2
+
+} SelectBookStatus;
 
 book *loadFromFile_booklist(const char *FILE_BOOK);
 book *saveToFile_booklist(book *head);
@@ -30,3 +36,5 @@ book *borrowBook(book *booklist_head, int bookcode, int usercode);
 book *returnBook(book *booklist_head, int bookcode, int usercode);
 borrowed_book *loadFromFile_BorrowedBooks(int usercode); 
 borrowed_book *saveToFile_BorrowedBooks(borrowed_book *head, int usercode);
+void showBorrowedBooks(borrowed_book *borrowed_book_head, book *booklist_head, SelectBookStatus book_status);
+const char* getBookName(book *booklist_head, int bookcode);
