@@ -202,4 +202,16 @@ UserNode* loginUser(UserNode *head)
         printf("User not found. Please check the username.\n");
     }
 }
+
+void showUserDetails(UserNode *user)
+{
+    if (user == NULL)
+    {
+        printf("No user details available.\n");
+        return;
+    }
+    printf("Username: %s\n", user->username);
+    printf("Usercode: %d\n", user->usercode);
+    printf("Registered at: %s\n", user->timestamp);
+}
 // End of src/user.c

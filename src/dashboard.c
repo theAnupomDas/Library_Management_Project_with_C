@@ -105,9 +105,26 @@ label_user_dashboard:
         _getch();
         goto label_user_dashboard;
     }
+    // view my borrowed books
     else if (user_choice == 3)
     {
-        printf("Under Development...\n");
+        borrowed_book *borrowed_books = loadFromFile_BorrowedBooks(current_user->usercode);
+        if (borrowed_books == NULL)
+        {
+            printf("You have not borrowed any books yet.\n");
+        }
+        else
+        {
+            printf("Your borrowed books:\n");
+            borrowed_book *temp = borrowed_books;
+            while (temp != NULL)
+            {
+                printf("Bookcode: %d, Timestamp: %s, Returned: %s\n",
+                       temp->bookcode, temp->timestamp, temp->is_returned ? "Yes" : "No");
+                temp = temp->next;
+            }
+            free(borrowed_books);
+        }
         printf("\nPress any key to return to dashboard...\n");
         _getch();
         goto label_user_dashboard;
@@ -146,10 +163,7 @@ label_user_dashboard:
     else if (user_choice == 7)
     {
         clearScreen();
-        printf("About the Current User:\n");
-        printf("Username: %s\n", current_user->username);
-        printf("Usercode: %d\n", current_user->usercode);
-        printf("Registered at: %s\n", current_user->timestamp);
+       showUserDetails(current_user);
         printf("Press any key to return to home... ");
         _getch();
         goto label_user_dashboard;
