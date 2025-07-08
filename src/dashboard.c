@@ -275,7 +275,7 @@ label_user_dashboard:
     {
         clearScreen();
         showUserDetails(current_user);
-        printf("Press any key to return to home... ");
+        printf("Press any key to return to dashboard... ");
         _getch();
         goto label_user_dashboard;
     }

@@ -125,6 +125,12 @@ UserNode *registerUser(UserNode *head)
     printf("Registering a new user...\n");
     printf("Enter Username: ");
     scanf("%s", newUser->username);
+    if (!strcmp(newUser->username, "admin"))
+    {
+        printf("Username 'admin' is reserved. Please choose a different username.\n");
+        free(newUser);
+        return head;
+    }
     UserNode *temp = head;
     int currentUsercode = 1000;
     UserNode *tail;
