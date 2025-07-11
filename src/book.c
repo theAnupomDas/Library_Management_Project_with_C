@@ -386,3 +386,73 @@ const char *getBookName(book *booklist_head, int bookcode)
     }
     return "Book not found";
 }
+void viewRequestedBooks( requested_book *requested_books_head)
+{
+    if (requested_books_head == NULL)
+    {
+        printf("No requested books found.\n");
+        return;
+    }
+
+    printf("Requested Books:\n");
+    requested_book *temp = requested_books_head;
+    while (temp != NULL)
+    {
+        printf("Usercode: %d, Bookcode: %d, Request Timestamp: %s\n", temp->usercode, temp->bookcode, temp->request_timestamp);
+        temp = temp->next;
+    }
+}
+
+requested_book* loadFromFIle_requested_books()
+{
+    FILE *file = fopen(filepath_requested_books, "r");
+    if (!file)
+    {
+        printf("File opening error!\n");
+        return NULL;
+    }
+
+    requested_book buffer;
+    requested_book *head = NULL;
+    requested_book *tail = NULL; // stores the current tail value
+    while (fscanf(file, "%d|%d|%39[^\n]", &buffer.usercode, &buffer.bookcode, buffer.request_timestamp) == 3)
+    {
+        requested_book *newNode = (requested_book *)malloc(sizeof(requested_book));
+        if (newNode == NULL)
+        {
+            printf("allocation failed");
+            exit(0);
+        }
+
+        *newNode = buffer;
+        newNode->next = NULL;
+
+        if (head == NULL)
+        {
+            head = tail = newNode;
+        }
+        else
+        {
+            tail->next = newNode;
+            tail = newNode;
+        }
+    }
+    fclose(file);
+    return head;
+}
+void saveToFile_requested_books(requested_book *head)
+{
+    FILE *file = fopen(filepath_requested_books, "w");
+    if (!file)
+    {
+        printf("File opening error!\n");
+        return;
+    }
+    requested_book *temp = head;
+    while (temp != NULL)
+    {
+        fprintf(file, "%d|%d|%s\n", temp->usercode, temp->bookcode, temp->request_timestamp);
+        temp = temp->next;
+    }
+    fclose(file);
+}

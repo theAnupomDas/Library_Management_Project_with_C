@@ -28,7 +28,8 @@ void adminDashboard(UserNode *userlist_head, book *booklist_head)
            "4. view all users\n"
            "5. logout and return to home\n"
            "6. logout and exit\n"
-           "7. update password\n");
+           "7. update password\n"
+           "8. view requested books\n");
 
     printf("Please select an option: ");
     int admin_choice;
@@ -130,6 +131,16 @@ void adminDashboard(UserNode *userlist_head, book *booklist_head)
         fprintf(admin_file, "%s\n", new_password);
         fclose(admin_file);
         printf("Admin password updated successfully!\n");
+        printf("Press any key to return to admin dashboard...\n");
+        _getch();
+        adminLogin(userlist_head, booklist_head);
+    }
+    else if (admin_choice == 8)
+    {
+        clearScreen();
+        requested_book *requested_books_head = loadFromFIle_requested_books();
+        viewRequestedBooks(requested_books_head);
+        free(requested_books_head);
         printf("Press any key to return to admin dashboard...\n");
         _getch();
         adminLogin(userlist_head, booklist_head);

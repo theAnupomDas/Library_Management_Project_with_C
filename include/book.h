@@ -49,3 +49,6 @@ borrowed_book *loadFromFile_BorrowedBooks(int usercode);
 borrowed_book *saveToFile_BorrowedBooks(borrowed_book *head, int usercode);
 void showBorrowedBooks(borrowed_book *borrowed_book_head, book *booklist_head, SelectBookStatus book_status);
 const char* getBookName(book *booklist_head, int bookcode);
+void viewRequestedBooks(requested_book *requested_books_head);
+requested_book* loadFromFIle_requested_books();
+void saveToFile_requested_books(requested_book *head);
