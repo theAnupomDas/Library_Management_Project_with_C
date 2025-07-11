@@ -52,3 +52,5 @@ const char* getBookName(book *booklist_head, int bookcode);
 void viewRequestedBooks(requested_book *requested_books_head);
 requested_book* loadFromFIle_requested_books();
 void saveToFile_requested_books(requested_book *head);
+requested_book* issueRequestedBook(requested_book *requested_books_head, int usercode, int bookcode);
+void updateRequestedBookStatus(int usercode, int bookcode);

@@ -199,9 +199,9 @@ book *borrowBook(book *booklist_head, int bookcode, int usercode)
                     printf("File opening error!\n");
                     return booklist_head;
                 }
-                fprintf(file, "%d|%d|%04d-%02d-%02d %02d:%02d:%02d|0|null|null|0|null\n",
+                fprintf(file, "%d|%d|%04d-%02d-%02d %02d:%02d:%02d|%d|requested|null|%d|null\n",
                         usercode, bookcode, t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
-                        t->tm_hour, t->tm_min, t->tm_sec);
+                        t->tm_hour, t->tm_min, t->tm_sec, 0, 0);
                 fclose(file);
                 
                 printf("Book borrowed successfully!\n");
@@ -455,4 +455,69 @@ void saveToFile_requested_books(requested_book *head)
         temp = temp->next;
     }
     fclose(file);
+}
+requested_book* issueRequestedBook(requested_book *requested_books_head, int usercode, int bookcode)
+{
+    requested_book *temp = requested_books_head;
+    requested_book *prev = NULL;
+    while (temp != NULL)
+    {
+        if (temp->usercode == usercode && temp->bookcode == bookcode)
+        {
+            // Issue the book
+            time_t now = time(NULL);
+            struct tm *t = localtime(&now);
+
+            
+            char issue_timestamp[40];
+            strftime(issue_timestamp, sizeof(issue_timestamp), "%Y-%m-%d %H:%M:%S", t);
+            printf("Book issued successfully to user %d at %s\n", usercode, issue_timestamp);
+            // Remove the request from the list
+            if (prev == NULL)
+            {
+                // If this is the first node
+                requested_books_head = temp->next;
+            }
+            else
+            {
+                prev->next = temp->next;
+            }
+            free(temp);
+            return requested_books_head;
+        }
+        prev = temp;
+        temp = temp->next;
+    }
+    printf("Requested book not found.\n");
+    return requested_books_head;
+}
+void updateRequestedBookStatus(int usercode, int bookcode)
+{
+    borrowed_book *borrowBook_head = loadFromFile_BorrowedBooks(usercode);
+    if (borrowBook_head == NULL)
+    {
+        printf("No borrowed books found for user %d.\n", usercode);
+        return;
+    }
+    borrowed_book *temp = borrowBook_head;
+    while (temp != NULL)
+    {
+        if (temp->bookcode == bookcode && !temp->is_issued)
+        {
+            // Update the status to issued
+            temp->is_issued = true;
+            time_t now = time(NULL);
+            struct tm *t = localtime(&now);
+            strftime(temp->issue_timestamp, sizeof(temp->issue_timestamp), "%Y-%m-%d %H:%M:%S", t);
+            // set due date to 7 days from issue time
+            t->tm_mday += 7; 
+            mktime(t); // Normalize the time structure
+            strftime(temp->due_timestamp, sizeof(temp->due_timestamp), "%Y-%m-%d %H:%M:%S", t);
+            printf("Book with code %d issued to user %d at %s\n", bookcode, usercode, temp->issue_timestamp);
+            saveToFile_BorrowedBooks(borrowBook_head, usercode);
+            free(borrowBook_head);
+            return;
+        }
+        temp = temp->next;
+    }
 }
