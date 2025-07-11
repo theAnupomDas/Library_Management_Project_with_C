@@ -6,6 +6,7 @@ typedef struct UserNode
     char password[20];
     int usercode;
     char timestamp[26];
+    int user_point;
     struct UserNode *next;
 } UserNode;
 

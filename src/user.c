@@ -22,7 +22,7 @@ UserNode *loadFromFile_userdata(const char *filepath)
     UserNode *tail = NULL; // stores the current tail value
     UserNode buffer;
 
-    while (fscanf(file, "%19[^|]|%19[^|]|%d|%25[^\n]\n", buffer.username, buffer.password, &buffer.usercode, buffer.timestamp) == 4)
+    while (fscanf(file, "%19[^|]|%19[^|]|%d|%25[^|]|%d\n", buffer.username, buffer.password, &buffer.usercode, buffer.timestamp, &buffer.user_point) == 5)
     {
         UserNode *newNode = (UserNode *)malloc(sizeof(UserNode));
         if (newNode == NULL)
@@ -69,7 +69,7 @@ void saveToFile_userdata(UserNode *head, const char *filepath)
     UserNode *temp = head;
     while (temp != NULL)
     {
-        fprintf(file, "%s|%s|%d|%s\n", temp->username, temp->password, temp->usercode, temp->timestamp);
+        fprintf(file, "%s|%s|%d|%s|%d\n", temp->username, temp->password, temp->usercode, temp->timestamp, temp->user_point);
         temp = temp->next;
     }
     fclose(file);
@@ -133,7 +133,9 @@ UserNode *registerUser(UserNode *head)
     }
     UserNode *temp = head;
     int currentUsercode = 1000;
-    UserNode *tail;
+    UserNode *tail = NULL;
+    
+    // Check for duplicate username and find the tail
     while (temp != NULL)
     {
         if (strcmp(temp->username, newUser->username) == 0)
@@ -142,22 +144,31 @@ UserNode *registerUser(UserNode *head)
             free(newUser);
             return head;
         }
-        currentUsercode = temp ? temp->usercode : 1000;
+        currentUsercode = temp->usercode;
         tail = temp;
         temp = temp->next;
     }
+    
     printf("Enter Password: ");
     scanf("%s", newUser->password);
 
     // Generate a unique usercode
-    newUser->usercode = ++currentUsercode; // Random usercode for simplicity
+    newUser->usercode = currentUsercode + 1; 
     time_t now = time(NULL);
     strftime(newUser->timestamp, sizeof(newUser->timestamp), "%Y-%m-%d %H:%M:%S", localtime(&now));
-    // time_t currentTime;
-    // time(&currentTime);
-    // newUser->timestamp = ctime(&currentTime);
-    tail->next = newUser;
+    newUser->user_point = 1; 
     newUser->next = NULL;
+    
+
+    if (head == NULL)
+    {
+        head = newUser;
+    }
+    else
+    {
+        tail->next = newUser;
+    }
+    
     char filepath[60];
     sprintf(filepath, filepath_borrowed_books"/user_%d_borrowed_book.txt", newUser->usercode);
     FILE *file = fopen(filepath, "w");
@@ -170,7 +181,6 @@ UserNode *registerUser(UserNode *head)
     fclose(file);
     saveToFile_userdata(head, filepath_userdata);
     printf("Registration successful! Your usercode is %d\n", newUser->usercode);
-    free(newUser);
     return head;
 }
 
