@@ -1,4 +1,0 @@
-101|book1|author1|gen1|100|80
-102|book2|author2|gen2|100|69
-103|book3|author3|gen2|100|89
-104|book4|author4|gen4|120|0

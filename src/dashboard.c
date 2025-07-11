@@ -21,6 +21,7 @@ void clearScreen()
 void adminDashboard(UserNode *userlist_head, book *booklist_head)
 {
     label_admin_dashboard:
+    clearScreen();
     printf("Welcome to the Admin Dashboard!\n");
     printf("1. view all books\n"
            "2. add a book\n"
@@ -48,7 +49,7 @@ void adminDashboard(UserNode *userlist_head, book *booklist_head)
         }
         printf("\nPress any key to return to admin dashboard...\n");
         _getch();
-        adminLogin(userlist_head, booklist_head);
+        goto label_admin_dashboard;
     }
     // add a book
     else if (admin_choice == 2)
@@ -56,7 +57,7 @@ void adminDashboard(UserNode *userlist_head, book *booklist_head)
         booklist_head = addBook(booklist_head, filepath_booklist);
         printf("\nPress any key to return to admin dashboard...\n");
         _getch();
-        adminLogin(userlist_head, booklist_head);
+        goto label_admin_dashboard;
     }
     // delete a book
     else if (admin_choice == 3)
@@ -82,7 +83,7 @@ void adminDashboard(UserNode *userlist_head, book *booklist_head)
         }
         printf("\nPress any key to return to admin dashboard...\n");
         _getch();
-        adminLogin(userlist_head, booklist_head);
+        goto label_admin_dashboard;
     }
     // view all users
     else if (admin_choice == 4)
@@ -90,7 +91,7 @@ void adminDashboard(UserNode *userlist_head, book *booklist_head)
         user_traversal(userlist_head);
         printf("\nPress any key to return to admin dashboard...\n");
         _getch();
-        adminLogin(userlist_head, booklist_head);
+        goto label_admin_dashboard;
     }
     // logout and return to home
     else if (admin_choice == 5)
@@ -134,7 +135,7 @@ void adminDashboard(UserNode *userlist_head, book *booklist_head)
         printf("Admin password updated successfully!\n");
         printf("Press any key to return to admin dashboard...\n");
         _getch();
-        adminLogin(userlist_head, booklist_head);
+        goto label_admin_dashboard;
     }
     else if (admin_choice == 8)
     {
@@ -144,7 +145,7 @@ void adminDashboard(UserNode *userlist_head, book *booklist_head)
         free(requested_books_head);
         printf("Press any key to return to admin dashboard...\n");
         _getch();
-        adminLogin(userlist_head, booklist_head);
+        goto label_admin_dashboard;
     }
     else if(admin_choice = 9)
     {
@@ -176,12 +177,12 @@ void adminDashboard(UserNode *userlist_head, book *booklist_head)
         free(requested_books_head);
         printf("Press any key to return to admin dashboard...\n");
         _getch();
-        adminLogin(userlist_head, booklist_head);
+        goto label_admin_dashboard;
     }
     else
     {
         printf("Invalid choice. Please try again.\n");
-        adminLogin(userlist_head, booklist_head);
+        goto label_admin_dashboard;
     }
 }
 

@@ -518,7 +518,6 @@ void updateRequestedBookStatus(int usercode, int bookcode)
             t->tm_mday += 7; 
             mktime(t); // Normalize the time structure
             strftime(temp->due_timestamp, sizeof(temp->due_timestamp), "%Y-%m-%d %H:%M:%S", t);
-            printf("Book with code %d issued to user %d at %s\n", bookcode, usercode, temp->issue_timestamp);
             saveToFile_BorrowedBooks(borrowBook_head, usercode);
             free(borrowBook_head);
             return;
