@@ -178,6 +178,19 @@ book *borrowBook(book *booklist_head, int bookcode, int usercode)
             if (temp->avaiablecount > 0)
             {
                 temp->avaiablecount--;
+                time_t now = time(NULL);
+                struct tm *t = localtime(&now);
+                FILE *requested_book_file = fopen(filepath_requested_books, "a");
+                if (!requested_book_file)
+                {
+                    printf("File opening error!\n");
+                    return booklist_head;
+                }
+                fprintf(requested_book_file, "%d|%d|%04d-%02d-%02d %02d:%02d:%02d\n",
+                        usercode, bookcode, t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
+                        t->tm_hour, t->tm_min, t->tm_sec);
+                fclose(requested_book_file);
+                    
                 char filepath[60];
                 sprintf(filepath, filepath_borrowed_books "/user_%d_borrowed_book.txt", usercode);
                 FILE *file = fopen(filepath, "a");
@@ -186,13 +199,11 @@ book *borrowBook(book *booklist_head, int bookcode, int usercode)
                     printf("File opening error!\n");
                     return booklist_head;
                 }
-                time_t now = time(NULL);
-                struct tm *t = localtime(&now);
-                fprintf(file, "%d|%d|%04d-%02d-%02d %02d:%02d:%02d|%d\n",
-                        usercode, bookcode,
-                        t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
-                        t->tm_hour, t->tm_min, t->tm_sec, 0); // 0 for not returned
+                fprintf(file, "%d|%d|%04d-%02d-%02d %02d:%02d:%02d|0|null|null|0|null\n",
+                        usercode, bookcode, t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
+                        t->tm_hour, t->tm_min, t->tm_sec);
                 fclose(file);
+                
                 printf("Book borrowed successfully!\n");
                 return booklist_head;
             }
@@ -259,7 +270,9 @@ borrowed_book *loadFromFile_BorrowedBooks(int usercode)
     borrowed_book *tail = NULL; // stores the current tail value
     borrowed_book buffer;
 
-    while (fscanf(file, "%d|%d|%39[^|]|%d\n", &buffer.usercode, &buffer.bookcode, buffer.timestamp, &buffer.is_returned) == 4)
+    while (fscanf(file, "%d|%d|%39[^|]|%d|%39[^|]|%39[^|]|%d|%39[^\n]",
+           &buffer.usercode, &buffer.bookcode, buffer.request_timestamp, &buffer.is_returned,
+           buffer.issue_timestamp, buffer.due_timestamp, &buffer.is_returned, buffer.return_timestamp) == 8)
     {
         borrowed_book *newNode = (borrowed_book *)malloc(sizeof(borrowed_book));
         if (newNode == NULL)
@@ -297,7 +310,9 @@ borrowed_book *saveToFile_BorrowedBooks(borrowed_book *head, int usercode)
     borrowed_book *temp = head;
     while (temp != NULL)
     {
-        fprintf(file, "%d|%d|%s|%d\n", temp->usercode, temp->bookcode, temp->timestamp, temp->is_returned);
+        fprintf(file, "%d|%d|%s|%d|%s|%s|%d|%s\n",
+                temp->usercode, temp->bookcode, temp->request_timestamp, temp->is_issued,
+                temp->issue_timestamp, temp->due_timestamp, temp->is_returned, temp->return_timestamp);
         temp = temp->next;
     }
     fclose(file);
@@ -319,8 +334,8 @@ void showBorrowedBooks(borrowed_book *borrowed_book_head, book *booklist_head, S
         {
             if (temp->is_returned == 0)
             {
-                printf("Bookcode: %d, Book: %s, Borrowed Time: %s\n",
-                       temp->bookcode, getBookName(booklist_head, temp->bookcode), temp->timestamp);
+                printf("Bookcode: %d, Book: %s, Issued Time: %s\n",
+                       temp->bookcode, getBookName(booklist_head, temp->bookcode), temp->issue_timestamp);
             }
 
             temp = temp->next;
@@ -334,8 +349,8 @@ void showBorrowedBooks(borrowed_book *borrowed_book_head, book *booklist_head, S
         {
             if (temp->is_returned == 1)
             {
-                printf("Bookcode: %d, Book: %s, Borrowed Time: %s, Returned: Yes, Returned time: \n",
-                       temp->bookcode, getBookName(booklist_head, temp->bookcode), temp->timestamp);
+                printf("Bookcode: %d, Book: %s, Borrowed Time: %s, Returned: Yes, Returned time: %s\n",
+                       temp->bookcode, getBookName(booklist_head, temp->bookcode), temp->issue_timestamp, temp->return_timestamp);
             }
 
             temp = temp->next;
@@ -347,8 +362,8 @@ void showBorrowedBooks(borrowed_book *borrowed_book_head, book *booklist_head, S
         temp = borrowed_book_head;
         while (temp != NULL)
         {
-            printf("Bookcode: %d, Book: %s, Borrowed Time: %s, Returned: %s, Returned time: \n",
-                   temp->bookcode, getBookName(booklist_head, temp->bookcode), temp->timestamp, temp->is_returned ? "Yes" : "No");
+            printf("Bookcode: %d, Book: %s, Borrowed Time: %s, Returned: %s, Returned time: %s\n",
+                   temp->bookcode, getBookName(booklist_head, temp->bookcode), temp->issue_timestamp, temp->is_returned ? "Yes" : "No", temp->return_timestamp);
             temp = temp->next;
         }
     }

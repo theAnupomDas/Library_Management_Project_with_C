@@ -15,10 +15,21 @@ typedef struct borrowed_book
 {
     int usercode; 
     int bookcode; 
-    char timestamp[40];
+    char request_timestamp[40];
+    bool is_issued;
+    char issue_timestamp[40];
+    char due_timestamp[40];
     bool is_returned; 
+    char return_timestamp[40];
     struct borrowed_book *next;
 } borrowed_book;
+typedef struct requested_book
+{
+    int usercode; 
+    int bookcode; 
+    char request_timestamp[40];
+    struct requested_book *next;
+} requested_book;
 typedef enum {
     NOT_RETURNED = 0,
     RETURNED = 1,

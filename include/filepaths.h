@@ -2,3 +2,4 @@
 #define filepath_userdata "../data/userdata.txt"
 #define filepath_borrowed_books "../data/borrowed_book"
 #define filepath_admin "../data/admin.txt"
+#define filepath_requested_books "../data/requested_books.txt"
