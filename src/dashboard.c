@@ -20,18 +20,19 @@ void clearScreen()
 
 void adminDashboard(UserNode *userlist_head, book *booklist_head)
 {
-    label_admin_dashboard:
+label_admin_dashboard:
     clearScreen();
     printf("Welcome to the Admin Dashboard!\n");
     printf("1. view all books\n"
            "2. add a book\n"
-           "3. delete a book\n"
-           "4. view all users\n"
-           "5. logout and return to home\n"
-           "6. logout and exit\n"
-           "7. update password\n"
-           "8. view requested books\n"
-           "9. issue requested books\n");
+           "3. view requested books\n"
+           "4. issue requested books\n"
+           "5. delete a book\n"
+           "6. view all users\n"
+           "7. delete a user\n"
+           "8. logout and return to home\n"
+           "9. logout and exit\n"
+           "10. update password\n");
 
     printf("Please select an option: ");
     int admin_choice;
@@ -59,8 +60,50 @@ void adminDashboard(UserNode *userlist_head, book *booklist_head)
         _getch();
         goto label_admin_dashboard;
     }
-    // delete a book
     else if (admin_choice == 3)
+    {
+        clearScreen();
+        requested_book *requested_books_head = loadFromFIle_requested_books();
+        viewRequestedBooks(requested_books_head);
+        free(requested_books_head);
+        printf("Press any key to return to admin dashboard...\n");
+        _getch();
+        goto label_admin_dashboard;
+    }
+    else if (admin_choice = 4)
+    {
+        clearScreen();
+        requested_book *requested_books_head = loadFromFIle_requested_books();
+        if (requested_books_head == NULL)
+        {
+            printf("No requested books available.\n");
+        }
+        else
+        {
+            viewRequestedBooks(requested_books_head);
+            int bookcode, usercode;
+            printf("Enter the book code you want to issue:\n"
+                   "or Press 0 to return to admin dashboard: \n"
+                   "Select an option: ");
+            scanf("%d", &bookcode);
+            if (bookcode == 0)
+            {
+                free(requested_books_head);
+                adminLogin(userlist_head, booklist_head);
+            }
+            printf("Enter the user code to whom you want to issue the book: ");
+            scanf("%d", &usercode);
+            requested_books_head = issueRequestedBook(requested_books_head, usercode, bookcode);
+            updateRequestedBookStatus(usercode, bookcode);
+            saveToFile_requested_books(requested_books_head);
+        }
+        free(requested_books_head);
+        printf("Press any key to return to admin dashboard...\n");
+        _getch();
+        goto label_admin_dashboard;
+    }
+    // delete a book
+    else if (admin_choice == 5)
     {
         if (booklist_head == NULL)
         {
@@ -86,15 +129,40 @@ void adminDashboard(UserNode *userlist_head, book *booklist_head)
         goto label_admin_dashboard;
     }
     // view all users
-    else if (admin_choice == 4)
+    else if (admin_choice == 6)
     {
         user_traversal(userlist_head);
         printf("\nPress any key to return to admin dashboard...\n");
         _getch();
         goto label_admin_dashboard;
     }
+    else if (admin_choice == 7)
+    {
+        if (userlist_head == NULL)
+        {
+            printf("No users available to delete.\n");
+        }
+        else
+        {
+            user_traversal(userlist_head);
+            int usercode;
+            printf("Enter the user code you want to delete:\n"
+                   "or Press 0 to return to admin dashboard: \n"
+                   "Select an option: ");
+            scanf("%d", &usercode);
+            if (usercode == 0)
+            {
+                adminLogin(userlist_head, booklist_head);
+            }
+            userlist_head = deleteUser(userlist_head, usercode);
+            saveToFile_userdata(userlist_head, filepath_userdata);
+        }
+        printf("\nPress any key to return to admin dashboard...\n");
+        _getch();
+        goto label_admin_dashboard;
+    }
     // logout and return to home
-    else if (admin_choice == 5)
+    else if (admin_choice == 8)
     {
         printf("Logging out...\n");
         printf("Press any key to return to home...\n");
@@ -102,14 +170,14 @@ void adminDashboard(UserNode *userlist_head, book *booklist_head)
         initiateProgram();
     }
     // logout and exit
-    else if (admin_choice == 6)
+    else if (admin_choice == 9)
     {
         printf("Logging out and exiting...\n");
         free(userlist_head);
         free(booklist_head);
         exit(0);
     }
-    else if (admin_choice == 7)
+    else if (admin_choice == 10)
     {
         clearScreen();
         char new_password[20];
@@ -137,48 +205,7 @@ void adminDashboard(UserNode *userlist_head, book *booklist_head)
         _getch();
         goto label_admin_dashboard;
     }
-    else if (admin_choice == 8)
-    {
-        clearScreen();
-        requested_book *requested_books_head = loadFromFIle_requested_books();
-        viewRequestedBooks(requested_books_head);
-        free(requested_books_head);
-        printf("Press any key to return to admin dashboard...\n");
-        _getch();
-        goto label_admin_dashboard;
-    }
-    else if(admin_choice = 9)
-    {
-        clearScreen();
-        requested_book *requested_books_head = loadFromFIle_requested_books();
-        if (requested_books_head == NULL)
-        {
-            printf("No requested books available.\n");
-        }
-        else
-        {
-            viewRequestedBooks(requested_books_head);
-            int bookcode, usercode;
-            printf("Enter the book code you want to issue:\n"
-                   "or Press 0 to return to admin dashboard: \n"
-                   "Select an option: ");
-            scanf("%d", &bookcode);
-            if (bookcode == 0)
-            {
-                free(requested_books_head);
-                adminLogin(userlist_head, booklist_head);
-            }
-            printf("Enter the user code to whom you want to issue the book: ");
-            scanf("%d", &usercode);
-            requested_books_head= issueRequestedBook(requested_books_head, usercode, bookcode);
-            updateRequestedBookStatus(usercode, bookcode);
-            saveToFile_requested_books(requested_books_head);
-        }
-        free(requested_books_head);
-        printf("Press any key to return to admin dashboard...\n");
-        _getch();
-        goto label_admin_dashboard;
-    }
+
     else
     {
         printf("Invalid choice. Please try again.\n");
