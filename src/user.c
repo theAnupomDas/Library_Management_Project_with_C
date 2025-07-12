@@ -4,6 +4,7 @@
 #include <string.h>
 #include <conio.h>
 #include <time.h>
+#include <stdint.h>
 #include "../include/user.h"
 #include "../include/filepaths.h"
 #include "../include/dashboard.h"
@@ -26,7 +27,6 @@ UserNode *loadFromFile_userdata(const char *filepath)
     while (fscanf(file, "%19[^|]|%19[^|]|%d|%25[^|]|%d\n", buffer.username, buffer.password, &buffer.usercode, buffer.timestamp, &buffer.user_point) == 5)
     {
         caesarDecrypt(buffer.username, DEFAULT_SHIFT);
-        caesarDecrypt(buffer.password, DEFAULT_SHIFT);
         UserNode *newNode = (UserNode *)malloc(sizeof(UserNode));
         if (newNode == NULL)
         {
@@ -75,9 +75,7 @@ void saveToFile_userdata(UserNode *head, const char *filepath)
     {
         encryptNode = *temp; // Copy the current node to encryptNode
         caesarEncrypt(encryptNode.username, DEFAULT_SHIFT);
-        caesarEncrypt(encryptNode.password, DEFAULT_SHIFT);
-
-        fprintf(file, "%s|%s|%d|%s|%d\n",encryptNode.username, encryptNode.password, temp->usercode, temp->timestamp, temp->user_point);
+        fprintf(file, "%s|%s|%d|%s|%d\n",encryptNode.username, temp->password, temp->usercode, temp->timestamp, temp->user_point);
         temp = temp->next;
     }
     fclose(file);
@@ -167,6 +165,9 @@ UserNode *registerUser(UserNode *head)
     
     printf("Enter Password: ");
     scanf("%s", newUser->password);
+    //hash the password
+    uint32_t hashed_password = fnv1_32(newUser->password);
+    sprintf(newUser->password, "%u", hashed_password);
 
     // Generate a unique usercode
     newUser->usercode = currentUsercode + 1; 
@@ -230,6 +231,10 @@ UserNode* loginUser(UserNode *userlist_head, book *booklist_head)
                     printf("Enter Password: ");
                     char entered_password[30];
                     scanf("%s", entered_password);
+
+                    uint32_t hashed_password = fnv1_32(entered_password);
+                    sprintf(entered_password, "%u", hashed_password);
+
                     // entered_password[strlen(entered_password)] = '\0';
                     if (strcmp(temp->password, entered_password) == 0)
                     {
@@ -254,6 +259,10 @@ void adminLogin(UserNode *userlist_head, book *booklist_head)
     char admin_password[20];
     printf("Enter Admin Password: ");
     scanf("%s", admin_password);
+
+    uint32_t hashed_admin_password = fnv1_32(admin_password);
+    sprintf(admin_password, "%u", hashed_admin_password);
+
     FILE *admin_file = fopen(filepath_admin, "r");
     if (admin_file == NULL)
     {

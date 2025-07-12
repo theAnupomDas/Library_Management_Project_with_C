@@ -4,10 +4,12 @@
 #include <string.h>
 #include <time.h>
 #include <conio.h>
+#include <stdint.h>
 
 #include "../include/book.h"
 #include "../include/dashboard.h"
 #include "../include/filepaths.h"
+#include "../include/security.h"
 
 void clearScreen()
 {
@@ -186,6 +188,7 @@ label_admin_dashboard:
         char new_password_confirm[20];
         printf("Confirm new admin password: ");
         scanf("%s", new_password_confirm);
+
         if (strcmp(new_password, new_password_confirm) != 0)
         {
             printf("Passwords do not match. Please try again.\n");
@@ -198,6 +201,8 @@ label_admin_dashboard:
             printf("Error opening admin file.\n");
             exit(1);
         }
+        uint32_t hashed_password = fnv1_32(new_password);
+        sprintf(new_password, "%u", hashed_password);
         fprintf(admin_file, "%s\n", new_password);
         fclose(admin_file);
         printf("Admin password updated successfully!\n");

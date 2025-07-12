@@ -2,3 +2,4 @@
 
 void caesarEncrypt(char *text, int shift);
 void caesarDecrypt(char *text, int shift);
+unsigned long long fnv1_32(const char *data);
