@@ -72,7 +72,7 @@ label_admin_dashboard:
         _getch();
         goto label_admin_dashboard;
     }
-    else if (admin_choice = 4)
+    else if (admin_choice == 4)
     {
         clearScreen();
         requested_book *requested_books_head = loadFromFIle_requested_books();
