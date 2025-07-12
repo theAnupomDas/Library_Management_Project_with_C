@@ -123,8 +123,16 @@ UserNode *registerUser(UserNode *head)
         return head;
     }
     printf("Registering a new user...\n");
+    printf("Enter 0 to return to home\n ");
     printf("Enter Username: ");
     scanf("%s", newUser->username);
+    if(!strcmp(newUser->username, "0"))
+    {
+        printf("Returning to home...\n");
+        free(newUser);
+        initiateProgram();
+        return head;
+    }
     if (!strcmp(newUser->username, "admin"))
     {
         printf("Username 'admin' is reserved. Please choose a different username.\n");
@@ -191,6 +199,12 @@ UserNode* loginUser(UserNode *userlist_head, book *booklist_head)
         printf("Enter Username: ");
         char entered_username[30];
         scanf("%s", entered_username);
+        if(strcmp(entered_username, "0") == 0)
+        {
+            printf("Returning to home...\n");
+            initiateProgram();
+            return NULL;
+        }
         // entered_username[strlen(entered_username)] = '\0';
         printf("Username entered: %s\n", entered_username);
         if (strcmp(entered_username, "admin") == 0)
@@ -222,7 +236,7 @@ UserNode* loginUser(UserNode *userlist_head, book *booklist_head)
             }
             temp = temp->next;
         }
-        printf("User not found. Please check the username.\n");
+        printf("User not found. Please check the username. \nor Enter 0 to return to home\n");
     }
 }
 
