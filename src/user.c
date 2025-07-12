@@ -8,6 +8,7 @@
 #include "../include/filepaths.h"
 #include "../include/dashboard.h"
 #include "../include/book.h"
+#include "../include/security.h"
 
 UserNode *loadFromFile_userdata(const char *filepath)
 {
@@ -24,6 +25,8 @@ UserNode *loadFromFile_userdata(const char *filepath)
 
     while (fscanf(file, "%19[^|]|%19[^|]|%d|%25[^|]|%d\n", buffer.username, buffer.password, &buffer.usercode, buffer.timestamp, &buffer.user_point) == 5)
     {
+        caesarDecrypt(buffer.username, DEFAULT_SHIFT);
+        caesarDecrypt(buffer.password, DEFAULT_SHIFT);
         UserNode *newNode = (UserNode *)malloc(sizeof(UserNode));
         if (newNode == NULL)
         {
@@ -67,9 +70,14 @@ void saveToFile_userdata(UserNode *head, const char *filepath)
         return;
     }
     UserNode *temp = head;
+    UserNode encryptNode;
     while (temp != NULL)
     {
-        fprintf(file, "%s|%s|%d|%s|%d\n", temp->username, temp->password, temp->usercode, temp->timestamp, temp->user_point);
+        encryptNode = *temp; // Copy the current node to encryptNode
+        caesarEncrypt(encryptNode.username, DEFAULT_SHIFT);
+        caesarEncrypt(encryptNode.password, DEFAULT_SHIFT);
+
+        fprintf(file, "%s|%s|%d|%s|%d\n",encryptNode.username, encryptNode.password, temp->usercode, temp->timestamp, temp->user_point);
         temp = temp->next;
     }
     fclose(file);
